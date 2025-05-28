@@ -1,25 +1,42 @@
 import streamlit as st
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
+from PIL import Image  # <-- This is the missing import
 
-# Load iris data and train model once
+# Load data and model
 iris = load_iris()
-X, y = iris.data, iris.target
-rf = RandomForestClassifier(random_state=42)
-rf.fit(X, y)
+rf = RandomForestClassifier()
+rf.fit(iris.data, iris.target)
 
-st.title("Iris Flower Species Prediction")
+# Input sliders
+sepal_length = st.slider("Sepal Length (cm)", 4.0, 8.0, 5.0)
+sepal_width = st.slider("Sepal Width (cm)", 2.0, 5.0, 3.0)
+petal_length = st.slider("Petal Length (cm)", 1.0, 7.0, 4.0)
+petal_width = st.slider("Petal Width (cm)", 0.1, 2.5, 1.0)
 
-# User inputs for features
-sepal_length = st.slider('Sepal length (cm)', float(X[:,0].min()), float(X[:,0].max()), float(X[:,0].mean()))
-sepal_width = st.slider('Sepal width (cm)', float(X[:,1].min()), float(X[:,1].max()), float(X[:,1].mean()))
-petal_length = st.slider('Petal length (cm)', float(X[:,2].min()), float(X[:,2].max()), float(X[:,2].mean()))
-petal_width = st.slider('Petal width (cm)', float(X[:,3].min()), float(X[:,3].max()), float(X[:,3].mean()))
-
-# Prepare input data for prediction
 input_data = [[sepal_length, sepal_width, petal_length, petal_width]]
 
 if st.button('Predict'):
     prediction = rf.predict(input_data)
-    species = iris.target_names[prediction][0]
-    st.write(f"Predicted Iris species: **{species}**")
+    species = iris.target_names[prediction][0].lower()
+    
+    # Display in VERY LARGE text
+    st.markdown(f"""
+    <h1 style='text-align: center; font-size: 48px; color: #FF6347;'>
+        Predicted Species: {species.capitalize()}
+    </h1>
+    """, unsafe_allow_html=True)
+    
+    # Display corresponding flower image
+    try:
+        image = Image.open(f"{species}.png")
+        st.image(image, 
+                caption=f"Iris {species.capitalize()}",
+                width=400
+               )
+    except FileNotFoundError:
+        st.error(f"Image file '{species}.png' not found!")
+        st.write("Required image files:")
+        st.write("- setosa.png")
+        st.write("- versicolor.png") 
+        st.write("- virginica.png")
