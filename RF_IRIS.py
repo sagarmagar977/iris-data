@@ -29,7 +29,7 @@ if st.button('Predict'):
     
     # Display corresponding flower image
     try:
-        image = Image.open(f"{species}.png")
+        image = Image.open(f"{species.capitalize()}.png")
         st.image(image, 
                 caption=f"Iris {species.capitalize()}",
                 width=400
